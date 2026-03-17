@@ -21,7 +21,7 @@ class MCB_Chat_Engine {
 
         // Search for relevant content
         $scanner = new MCB_Content_Scanner();
-        $max_chunks = (int) get_option( 'mcb_max_context_chunks', 5 );
+        $max_chunks = (int) get_option( 'mcb_max_context_chunks', 10 );
         $relevant_content = $scanner->search( $message, $max_chunks );
 
         // Build context from relevant content
@@ -163,7 +163,7 @@ WEBSITE CONTENT:
                 ),
                 'body'    => wp_json_encode( array(
                     'model'      => 'claude-haiku-4-5-20251001',
-                    'max_tokens' => 1024,
+                    'max_tokens' => 2048,
                     'system'     => $system_prompt,
                     'messages'   => $messages,
                 ) ),
@@ -239,7 +239,7 @@ WEBSITE CONTENT:
                     ),
                     'contents'           => $contents,
                     'generationConfig'   => array(
-                        'maxOutputTokens' => 1024,
+                        'maxOutputTokens' => 2048,
                         'temperature'     => 0.3,
                     ),
                 ) ),

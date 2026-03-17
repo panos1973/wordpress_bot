@@ -69,8 +69,16 @@ class MCB_Content_Scanner {
 
         $table_name = $wpdb->prefix . 'mcb_content_index';
 
-        // Strip shortcodes and HTML, get clean text
+        // Get content from post_content (render shortcodes first)
         $content = $this->clean_content( $post->post_content );
+
+        // Also extract content from page builder meta fields (Elementor, WPBakery, etc.)
+        $meta_content = $this->extract_meta_content( $post->ID );
+        if ( ! empty( $meta_content ) ) {
+            $content .= ' ' . $meta_content;
+        }
+
+        $content = trim( $content );
         $title = sanitize_text_field( $post->post_title );
         $url = get_permalink( $post->ID );
 
@@ -99,19 +107,17 @@ class MCB_Content_Scanner {
     }
 
     /**
-     * Clean post content by removing HTML, shortcodes, and extra whitespace.
+     * Clean post content by removing HTML and extra whitespace.
+     * Renders shortcodes first to capture their output before stripping HTML.
      *
      * @param string $content Raw post content.
      * @return string Cleaned content.
      */
     private function clean_content( $content ) {
-        // Remove shortcodes
-        $content = strip_shortcodes( $content );
-
-        // Process any remaining shortcodes
+        // First render shortcodes to get their output (e.g., page builder elements)
         $content = do_shortcode( $content );
 
-        // Remove HTML tags
+        // Remove HTML tags but keep text content
         $content = wp_strip_all_tags( $content );
 
         // Decode HTML entities
@@ -121,6 +127,107 @@ class MCB_Content_Scanner {
         $content = preg_replace( '/\s+/', ' ', $content );
 
         return trim( $content );
+    }
+
+    /**
+     * Extract text content from page builder meta fields.
+     * Supports Elementor, WPBakery, Beaver Builder, and generic custom fields.
+     *
+     * @param int $post_id The post ID.
+     * @return string Extracted text content.
+     */
+    private function extract_meta_content( $post_id ) {
+        $extra_content = '';
+
+        // Elementor: extract text from serialized Elementor data
+        $elementor_data = get_post_meta( $post_id, '_elementor_data', true );
+        if ( ! empty( $elementor_data ) ) {
+            if ( is_string( $elementor_data ) ) {
+                $elementor_data = json_decode( $elementor_data, true );
+            }
+            if ( is_array( $elementor_data ) ) {
+                $extra_content .= ' ' . $this->extract_elementor_text( $elementor_data );
+            }
+        }
+
+        // WPBakery / Visual Composer: content is typically in post_content with shortcodes
+        // (already handled by do_shortcode in clean_content)
+
+        // ACF and generic custom fields: extract text from commonly used meta keys
+        $text_meta_keys = apply_filters( 'mcb_extra_meta_keys', array() );
+        foreach ( $text_meta_keys as $key ) {
+            $value = get_post_meta( $post_id, $key, true );
+            if ( ! empty( $value ) && is_string( $value ) ) {
+                $extra_content .= ' ' . wp_strip_all_tags( $value );
+            }
+        }
+
+        // Normalize whitespace
+        $extra_content = preg_replace( '/\s+/', ' ', $extra_content );
+
+        return trim( $extra_content );
+    }
+
+    /**
+     * Recursively extract text from Elementor data structure.
+     *
+     * @param array $elements Elementor elements array.
+     * @return string Extracted text.
+     */
+    private function extract_elementor_text( $elements ) {
+        $text = '';
+
+        foreach ( $elements as $element ) {
+            // Extract from settings (where Elementor stores widget content)
+            if ( ! empty( $element['settings'] ) ) {
+                foreach ( $element['settings'] as $key => $value ) {
+                    if ( is_string( $value ) && ! empty( $value ) ) {
+                        // Skip CSS/styling properties, focus on content fields
+                        $content_keys = array(
+                            'title', 'editor', 'text', 'description', 'content',
+                            'heading', 'subtitle', 'caption', 'label', 'inner_text',
+                            'tab_title', 'tab_content', 'item_description', 'item_title',
+                            'alert_title', 'alert_description', 'html', 'shortcode',
+                            'testimonial_content', 'testimonial_name', 'testimonial_job',
+                            'blockquote_content', 'author_name',
+                            'title_text', 'description_text',
+                        );
+                        if ( in_array( $key, $content_keys, true ) || strpos( $key, 'text' ) !== false || strpos( $key, 'title' ) !== false || strpos( $key, 'description' ) !== false || strpos( $key, 'content' ) !== false ) {
+                            $clean = wp_strip_all_tags( $value );
+                            $clean = html_entity_decode( $clean, ENT_QUOTES, 'UTF-8' );
+                            if ( mb_strlen( $clean, 'UTF-8' ) > 2 ) {
+                                $text .= ' ' . $clean;
+                            }
+                        }
+                    }
+                    // Handle repeater fields (arrays of items with text)
+                    if ( is_array( $value ) ) {
+                        foreach ( $value as $item ) {
+                            if ( is_array( $item ) ) {
+                                foreach ( $item as $sub_key => $sub_value ) {
+                                    if ( is_string( $sub_value ) && ! empty( $sub_value ) ) {
+                                        if ( strpos( $sub_key, 'text' ) !== false || strpos( $sub_key, 'title' ) !== false || strpos( $sub_key, 'description' ) !== false || strpos( $sub_key, 'content' ) !== false ) {
+                                            $clean = wp_strip_all_tags( $sub_value );
+                                            $clean = html_entity_decode( $clean, ENT_QUOTES, 'UTF-8' );
+                                            if ( mb_strlen( $clean, 'UTF-8' ) > 2 ) {
+                                                $text .= ' ' . $clean;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Recurse into child elements
+            if ( ! empty( $element['elements'] ) ) {
+                $text .= ' ' . $this->extract_elementor_text( $element['elements'] );
+            }
+        }
+
+        return $text;
     }
 
     /**
@@ -218,11 +325,13 @@ class MCB_Content_Scanner {
 
     /**
      * Extract meaningful keywords from a query.
+     * Supports Greek, Latin, and other Unicode scripts.
      *
      * @param string $query The search query.
      * @return array Array of keywords.
      */
     private function extract_keywords( $query ) {
+        // English stop words
         $stop_words = array(
             'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
             'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
@@ -240,11 +349,29 @@ class MCB_Content_Scanner {
             'please', 'help', 'want', 'like', 'get', 'give', 'make', 'go',
         );
 
-        $query = strtolower( $query );
-        $query = preg_replace( '/[^a-z0-9\s]/', '', $query );
-        $words = explode( ' ', $query );
-        $words = array_filter( $words, function( $word ) use ( $stop_words ) {
-            return strlen( $word ) > 2 && ! in_array( $word, $stop_words, true );
+        // Greek stop words
+        $greek_stop_words = array(
+            'και', 'του', 'της', 'των', 'τον', 'την', 'το', 'τα', 'τις', 'τους',
+            'ένα', 'μια', 'ένας', 'στο', 'στη', 'στα', 'στις', 'στον', 'στην', 'στους',
+            'από', 'για', 'με', 'σε', 'ως', 'που', 'είναι', 'ήταν', 'θα', 'να',
+            'δεν', 'μου', 'σου', 'σας', 'μας', 'τους', 'αυτό', 'αυτή', 'αυτός',
+            'αυτά', 'αυτές', 'αυτοί', 'εγώ', 'εσύ', 'εμείς', 'εσείς', 'αυτοί',
+            'πώς', 'πως', 'τι', 'ποιο', 'ποια', 'ποιος', 'ποιες', 'ποιοι', 'ποιων',
+            'πότε', 'πού', 'γιατί', 'αν', 'ή', 'αλλά', 'όμως', 'ούτε', 'μόνο',
+            'πολύ', 'πιο', 'πάνω', 'κάτω', 'μετά', 'πριν', 'όλα', 'κάθε',
+            'κάνετε', 'κάνουν', 'κάνει', 'κάνω', 'κάνουμε', 'έχει', 'έχω',
+            'έχουν', 'έχουμε', 'έχετε', 'είναι', 'είμαι', 'είσαι', 'είμαστε',
+            'μπορεί', 'μπορώ', 'μπορούν', 'πρέπει', 'ποια', 'ποιες', 'ποιο',
+        );
+
+        $all_stop_words = array_merge( $stop_words, $greek_stop_words );
+
+        $query = mb_strtolower( $query, 'UTF-8' );
+        // Keep Unicode letters, numbers, and whitespace (supports Greek and all scripts)
+        $query = preg_replace( '/[^\p{L}\p{N}\s]/u', '', $query );
+        $words = preg_split( '/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY );
+        $words = array_filter( $words, function( $word ) use ( $all_stop_words ) {
+            return mb_strlen( $word, 'UTF-8' ) > 1 && ! in_array( $word, $all_stop_words, true );
         });
 
         return array_values( array_unique( $words ) );
