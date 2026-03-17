@@ -38,10 +38,20 @@ class MCB_Chat_Engine {
         }
 
         if ( is_wp_error( $response ) ) {
+            $error_msg = $response->get_error_message();
+
+            // Log the error for admin debugging
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( 'Medical Chatbot API Error (' . $provider . '): ' . $error_msg );
+            }
+
+            // Log failed conversation so admin can see it in Logs tab
+            $this->log_conversation( $message, '[ERROR] ' . $error_msg, $provider );
+
             return array(
                 'success' => false,
                 'message' => 'Ζητούμε συγγνώμη, αλλά δεν μπορούμε να επεξεργαστούμε το αίτημά σας αυτή τη στιγμή. Παρακαλώ δοκιμάστε ξανά αργότερα.',
-                'error'   => $response->get_error_message(),
+                'error'   => $error_msg,
             );
         }
 
