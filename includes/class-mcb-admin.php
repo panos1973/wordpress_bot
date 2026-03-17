@@ -60,6 +60,9 @@ class MCB_Admin {
         register_setting( 'mcb_settings', 'mcb_gemini_api_key', array(
             'sanitize_callback' => 'sanitize_text_field',
         ) );
+        register_setting( 'mcb_settings', 'mcb_gemini_model', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
 
         // Scan Settings
         register_setting( 'mcb_settings', 'mcb_scan_frequency', array(

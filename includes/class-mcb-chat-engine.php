@@ -210,7 +210,7 @@ class MCB_Chat_Engine {
     }
 
     /**
-     * Call Gemini 3.0 Flash API.
+     * Call Gemini API.
      *
      * @param string $system_prompt The system prompt.
      * @param string $message       The user message.
@@ -244,7 +244,8 @@ class MCB_Chat_Engine {
             'parts' => array( array( 'text' => $message ) ),
         );
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=' . $api_key;
+        $model = get_option( 'mcb_gemini_model', 'gemini-3-flash-preview' );
+        $url   = 'https://generativelanguage.googleapis.com/v1beta/models/' . $model . ':generateContent?key=' . $api_key;
 
         $response = wp_remote_post(
             $url,

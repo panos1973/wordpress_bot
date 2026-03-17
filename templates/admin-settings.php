@@ -51,7 +51,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                         echo $key ? '<span class="mcb-status-ok">Κλειδί API Ενεργό</span>' : '<span class="mcb-status-error">Λείπει Κλειδί API</span>';
                     } else {
                         $key = get_option( 'mcb_gemini_api_key', '' );
-                        echo '<strong>Gemini 3.0 Flash</strong><br>';
+                        $gemini_model = get_option( 'mcb_gemini_model', 'gemini-3-flash-preview' );
+                        $model_labels = array(
+                            'gemini-3-flash-preview'          => 'Gemini 3 Flash Preview',
+                            'gemini-2.5-flash'                => 'Gemini 2.5 Flash',
+                            'gemini-3.1-flash-lite-preview'   => 'Gemini 3.1 Flash-Lite Preview',
+                        );
+                        $label = isset( $model_labels[ $gemini_model ] ) ? $model_labels[ $gemini_model ] : $gemini_model;
+                        echo '<strong>' . esc_html( $label ) . '</strong><br>';
                         echo $key ? '<span class="mcb-status-ok">Κλειδί API Ενεργό</span>' : '<span class="mcb-status-error">Λείπει Κλειδί API</span>';
                     }
                     ?>
@@ -77,7 +84,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 Claude Haiku 4.5 (Anthropic)
                             </option>
                             <option value="gemini" <?php selected( get_option( 'mcb_ai_provider' ), 'gemini' ); ?>>
-                                Gemini 3.0 Flash (Google)
+                                Gemini (Google)
                             </option>
                         </select>
                         <p class="description"><?php esc_html_e( 'Επιλέξτε ποιο μοντέλο AI θα χρησιμοποιηθεί για τις απαντήσεις.', 'medical-chatbot' ); ?></p>
@@ -102,7 +109,26 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="password" name="mcb_gemini_api_key" id="mcb_gemini_api_key"
                                value="<?php echo esc_attr( get_option( 'mcb_gemini_api_key' ) ); ?>"
                                class="regular-text" autocomplete="off">
-                        <p class="description"><?php esc_html_e( 'Το κλειδί Google AI API για Gemini 3.0 Flash.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Το κλειδί Google AI API για Gemini.', 'medical-chatbot' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="mcb_gemini_model"><?php esc_html_e( 'Μοντέλο Gemini', 'medical-chatbot' ); ?></label>
+                    </th>
+                    <td>
+                        <select name="mcb_gemini_model" id="mcb_gemini_model">
+                            <option value="gemini-3-flash-preview" <?php selected( get_option( 'mcb_gemini_model', 'gemini-3-flash-preview' ), 'gemini-3-flash-preview' ); ?>>
+                                Gemini 3 Flash Preview
+                            </option>
+                            <option value="gemini-2.5-flash" <?php selected( get_option( 'mcb_gemini_model', 'gemini-3-flash-preview' ), 'gemini-2.5-flash' ); ?>>
+                                Gemini 2.5 Flash
+                            </option>
+                            <option value="gemini-3.1-flash-lite-preview" <?php selected( get_option( 'mcb_gemini_model', 'gemini-3-flash-preview' ), 'gemini-3.1-flash-lite-preview' ); ?>>
+                                Gemini 3.1 Flash-Lite Preview
+                            </option>
+                        </select>
+                        <p class="description"><?php esc_html_e( 'Επιλέξτε ποιο μοντέλο Gemini θα χρησιμοποιηθεί.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
             </table>
