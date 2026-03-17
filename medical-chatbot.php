@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/panos1973/wordpress_bot
  * Description: AI-powered chatbot for medical websites that answers visitor questions based on website content. Supports Claude Haiku 4.5 and Gemini 3.0 Flash.
  * Version: 1.2.0
- * Author: Panos
+ * Author: Publisize
  * License: GPL v2 or later
  * Text Domain: medical-chatbot
  */
