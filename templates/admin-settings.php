@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap mcb-admin-wrap">
-    <h1><?php esc_html_e( 'Medical Chatbot Settings', 'medical-chatbot' ); ?></h1>
+    <h1><?php esc_html_e( 'Medical Chatbot Settings', 'medical-chatbot' ); ?> <small style="font-size:13px;color:#646970;">v<?php echo esc_html( MCB_VERSION ); ?></small></h1>
 
     <!-- Status Dashboard -->
     <div class="mcb-dashboard">
