@@ -82,6 +82,12 @@ class MCB_Admin {
         register_setting( 'mcb_settings', 'mcb_max_context_chunks', array(
             'sanitize_callback' => 'absint',
         ) );
+        register_setting( 'mcb_settings', 'mcb_phone_number', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
+        register_setting( 'mcb_settings', 'mcb_phone_number_2', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
     }
 
     public function sanitize_post_types( $input ) {

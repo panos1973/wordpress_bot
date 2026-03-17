@@ -68,7 +68,19 @@ class MCB_Chat_Engine {
      */
     private function build_context( $chunks ) {
         if ( empty( $chunks ) ) {
-            return 'Δεν βρέθηκε σχετικό περιεχόμενο στην ιστοσελίδα για αυτό το ερώτημα.';
+            $phone1 = get_option( 'mcb_phone_number', '' );
+            $phone2 = get_option( 'mcb_phone_number_2', '' );
+
+            $phone_info = '';
+            if ( ! empty( $phone1 ) && ! empty( $phone2 ) ) {
+                $phone_info = ' στα τηλέφωνα ' . $phone1 . ' ή ' . $phone2;
+            } elseif ( ! empty( $phone1 ) ) {
+                $phone_info = ' στο τηλέφωνο ' . $phone1;
+            } elseif ( ! empty( $phone2 ) ) {
+                $phone_info = ' στο τηλέφωνο ' . $phone2;
+            }
+
+            return 'Δεν βρέθηκε σχετικό περιεχόμενο στην ιστοσελίδα για αυτό το ερώτημα. ΣΗΜΑΝΤΙΚΟ: Ενημέρωσε τον επισκέπτη ότι δεν είσαι σίγουρος για την απάντηση και ότι θα ήταν καλύτερα να καλέσει το ιατρείο' . $phone_info . ' για βοήθεια και καθοδήγηση.';
         }
 
         $context_parts = array();

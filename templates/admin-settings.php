@@ -188,6 +188,27 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </tr>
                 <tr>
                     <th scope="row">
+                        <label for="mcb_phone_number"><?php esc_html_e( 'Τηλέφωνο Ιατρείου 1', 'medical-chatbot' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="text" name="mcb_phone_number" id="mcb_phone_number"
+                               value="<?php echo esc_attr( get_option( 'mcb_phone_number', '' ) ); ?>"
+                               class="regular-text" placeholder="+30 XXX XXX XXXX">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="mcb_phone_number_2"><?php esc_html_e( 'Τηλέφωνο Ιατρείου 2', 'medical-chatbot' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="text" name="mcb_phone_number_2" id="mcb_phone_number_2"
+                               value="<?php echo esc_attr( get_option( 'mcb_phone_number_2', '' ) ); ?>"
+                               class="regular-text" placeholder="+30 XXX XXX XXXX">
+                        <p class="description"><?php esc_html_e( 'Τα τηλέφωνα που θα προτείνει ο βοηθός όταν δεν μπορεί να βρει απάντηση.', 'medical-chatbot' ); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
                         <label for="mcb_primary_color"><?php esc_html_e( 'Κύριο Χρώμα', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
