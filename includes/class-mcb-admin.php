@@ -14,6 +14,8 @@ class MCB_Admin {
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
         add_action( 'wp_ajax_mcb_run_scan', array( $this, 'ajax_run_scan' ) );
+        add_action( 'wp_ajax_mcb_scan_init', array( $this, 'ajax_scan_init' ) );
+        add_action( 'wp_ajax_mcb_scan_batch', array( $this, 'ajax_scan_batch' ) );
         add_action( 'wp_ajax_mcb_test_chat', array( $this, 'ajax_test_chat' ) );
     }
 
@@ -154,6 +156,34 @@ class MCB_Admin {
 
         $scanner = new MCB_Content_Scanner();
         $results = $scanner->run_scan();
+
+        wp_send_json_success( $results );
+    }
+
+    public function ajax_scan_init() {
+        check_ajax_referer( 'mcb_admin_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Insufficient permissions.' );
+        }
+
+        $scanner = new MCB_Content_Scanner();
+        $results = $scanner->batch_init();
+
+        wp_send_json_success( $results );
+    }
+
+    public function ajax_scan_batch() {
+        check_ajax_referer( 'mcb_admin_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( 'Insufficient permissions.' );
+        }
+
+        $offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+
+        $scanner = new MCB_Content_Scanner();
+        $results = $scanner->batch_process( $offset );
 
         wp_send_json_success( $results );
     }

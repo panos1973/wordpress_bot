@@ -1,6 +1,8 @@
 <?php
 /**
  * Content Scanner - Scans and indexes website content for the chatbot.
+ * Fetches the actual rendered HTML of each page to capture all visible content
+ * regardless of which page builder (Elementor, WPBakery, etc.) was used.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -15,18 +17,20 @@ class MCB_Content_Scanner {
     const CHUNK_SIZE = 1500;
 
     /**
+     * Number of pages to process per batch.
+     */
+    const BATCH_SIZE = 5;
+
+    /**
      * Run a full scan of all configured post types.
+     * (Legacy method - kept for cron compatibility.)
      *
      * @return array Scan results with counts.
      */
     public function run_scan() {
         global $wpdb;
 
-        $post_types = get_option( 'mcb_post_types', array( 'post', 'page' ) );
-        if ( ! is_array( $post_types ) ) {
-            $post_types = array( 'post', 'page' );
-        }
-
+        $post_ids = $this->get_scannable_post_ids();
         $table_name = $wpdb->prefix . 'mcb_content_index';
 
         // Clear existing index
@@ -35,18 +39,14 @@ class MCB_Content_Scanner {
         $total_posts = 0;
         $total_chunks = 0;
 
-        foreach ( $post_types as $post_type ) {
-            $posts = get_posts( array(
-                'post_type'      => $post_type,
-                'post_status'    => 'publish',
-                'posts_per_page' => -1,
-            ) );
-
-            foreach ( $posts as $post ) {
-                $chunks = $this->index_post( $post );
-                $total_chunks += $chunks;
-                $total_posts++;
+        foreach ( $post_ids as $post_id ) {
+            $post = get_post( $post_id );
+            if ( ! $post ) {
+                continue;
             }
+            $chunks = $this->index_post( $post );
+            $total_chunks += $chunks;
+            $total_posts++;
         }
 
         update_option( 'mcb_last_scan', current_time( 'mysql' ) );
@@ -59,7 +59,103 @@ class MCB_Content_Scanner {
     }
 
     /**
-     * Index a single post into chunks.
+     * Initialize a batch scan: get post IDs and clear the index.
+     *
+     * @return array Post IDs and total count.
+     */
+    public function batch_init() {
+        global $wpdb;
+
+        $post_ids = $this->get_scannable_post_ids();
+        $table_name = $wpdb->prefix . 'mcb_content_index';
+
+        // Clear existing index
+        $wpdb->query( "TRUNCATE TABLE $table_name" );
+
+        // Store the post IDs for batch processing
+        update_option( 'mcb_scan_queue', $post_ids );
+        update_option( 'mcb_scan_progress', 0 );
+
+        return array(
+            'total'      => count( $post_ids ),
+            'batch_size' => self::BATCH_SIZE,
+        );
+    }
+
+    /**
+     * Process the next batch of posts.
+     *
+     * @param int $offset The offset to start from.
+     * @return array Batch results.
+     */
+    public function batch_process( $offset = 0 ) {
+        $post_ids = get_option( 'mcb_scan_queue', array() );
+        $total = count( $post_ids );
+        $batch = array_slice( $post_ids, $offset, self::BATCH_SIZE );
+
+        $batch_chunks = 0;
+        $batch_posts = 0;
+        $batch_details = array();
+
+        foreach ( $batch as $post_id ) {
+            $post = get_post( $post_id );
+            if ( ! $post ) {
+                continue;
+            }
+
+            $chunks = $this->index_post( $post );
+            $batch_chunks += $chunks;
+            $batch_posts++;
+            $batch_details[] = array(
+                'title'  => $post->post_title,
+                'chunks' => $chunks,
+            );
+        }
+
+        $new_offset = $offset + self::BATCH_SIZE;
+        $done = $new_offset >= $total;
+
+        if ( $done ) {
+            update_option( 'mcb_last_scan', current_time( 'mysql' ) );
+            delete_option( 'mcb_scan_queue' );
+            delete_option( 'mcb_scan_progress' );
+        } else {
+            update_option( 'mcb_scan_progress', $new_offset );
+        }
+
+        return array(
+            'processed'    => min( $new_offset, $total ),
+            'total'        => $total,
+            'batch_chunks' => $batch_chunks,
+            'batch_posts'  => $batch_posts,
+            'done'         => $done,
+            'details'      => $batch_details,
+        );
+    }
+
+    /**
+     * Get all post IDs that should be scanned.
+     *
+     * @return array Array of post IDs.
+     */
+    private function get_scannable_post_ids() {
+        $post_types = get_option( 'mcb_post_types', array( 'post', 'page' ) );
+        if ( ! is_array( $post_types ) ) {
+            $post_types = array( 'post', 'page' );
+        }
+
+        $post_ids = get_posts( array(
+            'post_type'      => $post_types,
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ) );
+
+        return $post_ids;
+    }
+
+    /**
+     * Index a single post by fetching its rendered HTML.
      *
      * @param WP_Post $post The post to index.
      * @return int Number of chunks created.
@@ -68,19 +164,22 @@ class MCB_Content_Scanner {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'mcb_content_index';
+        $title = sanitize_text_field( $post->post_title );
+        $url = get_permalink( $post->ID );
 
-        // Get content from post_content (render shortcodes first)
-        $content = $this->clean_content( $post->post_content );
+        // Fetch the actual rendered page HTML
+        $content = $this->fetch_page_content( $url );
 
-        // Also extract content from page builder meta fields (Elementor, WPBakery, etc.)
-        $meta_content = $this->extract_meta_content( $post->ID );
-        if ( ! empty( $meta_content ) ) {
-            $content .= ' ' . $meta_content;
+        // If fetch failed, fall back to database content
+        if ( empty( $content ) ) {
+            $content = $this->get_database_content( $post );
         }
 
         $content = trim( $content );
-        $title = sanitize_text_field( $post->post_title );
-        $url = get_permalink( $post->ID );
+
+        if ( empty( $content ) ) {
+            return 0;
+        }
 
         // Split content into chunks
         $chunks = $this->split_into_chunks( $content );
@@ -107,65 +206,103 @@ class MCB_Content_Scanner {
     }
 
     /**
-     * Clean post content by removing HTML and extra whitespace.
-     * Renders shortcodes first to capture their output before stripping HTML.
+     * Fetch the rendered HTML of a page and extract its visible text content.
      *
-     * @param string $content Raw post content.
-     * @return string Cleaned content.
+     * @param string $url The page URL.
+     * @return string The extracted text content.
      */
-    private function clean_content( $content ) {
-        // First render shortcodes to get their output (e.g., page builder elements)
-        $content = do_shortcode( $content );
+    private function fetch_page_content( $url ) {
+        if ( empty( $url ) ) {
+            return '';
+        }
 
-        // Remove HTML tags but keep text content
-        $content = wp_strip_all_tags( $content );
+        $response = wp_remote_get( $url, array(
+            'timeout'    => 15,
+            'sslverify'  => false,
+            'user-agent' => 'MCB-Content-Scanner/1.0 (internal)',
+        ) );
 
-        // Decode HTML entities
-        $content = html_entity_decode( $content, ENT_QUOTES, 'UTF-8' );
+        if ( is_wp_error( $response ) ) {
+            return '';
+        }
 
-        // Normalize whitespace
-        $content = preg_replace( '/\s+/', ' ', $content );
+        $status = wp_remote_retrieve_response_code( $response );
+        if ( 200 !== $status ) {
+            return '';
+        }
 
-        return trim( $content );
+        $html = wp_remote_retrieve_body( $response );
+        if ( empty( $html ) ) {
+            return '';
+        }
+
+        return $this->extract_text_from_html( $html );
     }
 
     /**
-     * Extract text content from page builder meta fields.
-     * Supports Elementor, WPBakery, Beaver Builder, and generic custom fields.
+     * Extract meaningful text content from HTML, removing navigation,
+     * scripts, styles, footers, and other non-content elements.
      *
-     * @param int $post_id The post ID.
-     * @return string Extracted text content.
+     * @param string $html Raw HTML.
+     * @return string Cleaned text.
      */
-    private function extract_meta_content( $post_id ) {
-        $extra_content = '';
+    private function extract_text_from_html( $html ) {
+        // Remove script and style tags with their content
+        $html = preg_replace( '/<script\b[^>]*>.*?<\/script>/is', '', $html );
+        $html = preg_replace( '/<style\b[^>]*>.*?<\/style>/is', '', $html );
+        $html = preg_replace( '/<noscript\b[^>]*>.*?<\/noscript>/is', '', $html );
 
-        // Elementor: extract text from serialized Elementor data
-        $elementor_data = get_post_meta( $post_id, '_elementor_data', true );
+        // Remove common non-content areas by tag
+        $html = preg_replace( '/<nav\b[^>]*>.*?<\/nav>/is', '', $html );
+        $html = preg_replace( '/<header\b[^>]*>.*?<\/header>/is', '', $html );
+        $html = preg_replace( '/<footer\b[^>]*>.*?<\/footer>/is', '', $html );
+
+        // Remove elements by common non-content classes/IDs
+        $html = preg_replace( '/<[^>]+(class|id)\s*=\s*["\'][^"\']*\b(menu|nav|sidebar|widget|cookie|popup|modal|banner|advertisement|social)[^"\']*["\'][^>]*>.*?<\/[a-z]+>/is', '', $html );
+
+        // Remove HTML comments
+        $html = preg_replace( '/<!--.*?-->/s', '', $html );
+
+        // Remove all remaining HTML tags
+        $text = wp_strip_all_tags( $html );
+
+        // Decode HTML entities
+        $text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
+
+        // Normalize whitespace
+        $text = preg_replace( '/\s+/', ' ', $text );
+
+        return trim( $text );
+    }
+
+    /**
+     * Fallback: get content from database fields if HTTP fetch fails.
+     *
+     * @param WP_Post $post The post.
+     * @return string Cleaned content.
+     */
+    private function get_database_content( $post ) {
+        $content = '';
+
+        // Render shortcodes in post_content
+        $raw = do_shortcode( $post->post_content );
+        $content .= wp_strip_all_tags( $raw );
+
+        // Try Elementor data
+        $elementor_data = get_post_meta( $post->ID, '_elementor_data', true );
         if ( ! empty( $elementor_data ) ) {
             if ( is_string( $elementor_data ) ) {
                 $elementor_data = json_decode( $elementor_data, true );
             }
             if ( is_array( $elementor_data ) ) {
-                $extra_content .= ' ' . $this->extract_elementor_text( $elementor_data );
+                $content .= ' ' . $this->extract_elementor_text( $elementor_data );
             }
         }
 
-        // WPBakery / Visual Composer: content is typically in post_content with shortcodes
-        // (already handled by do_shortcode in clean_content)
+        $content = html_entity_decode( $content, ENT_QUOTES, 'UTF-8' );
+        $content = preg_replace( '/\s+/', ' ', $content );
 
-        // ACF and generic custom fields: extract text from commonly used meta keys
-        $text_meta_keys = apply_filters( 'mcb_extra_meta_keys', array() );
-        foreach ( $text_meta_keys as $key ) {
-            $value = get_post_meta( $post_id, $key, true );
-            if ( ! empty( $value ) && is_string( $value ) ) {
-                $extra_content .= ' ' . wp_strip_all_tags( $value );
-            }
-        }
-
-        // Normalize whitespace
-        $extra_content = preg_replace( '/\s+/', ' ', $extra_content );
-
-        return trim( $extra_content );
+        return trim( $content );
     }
 
     /**
@@ -178,21 +315,10 @@ class MCB_Content_Scanner {
         $text = '';
 
         foreach ( $elements as $element ) {
-            // Extract from settings (where Elementor stores widget content)
             if ( ! empty( $element['settings'] ) ) {
                 foreach ( $element['settings'] as $key => $value ) {
                     if ( is_string( $value ) && ! empty( $value ) ) {
-                        // Skip CSS/styling properties, focus on content fields
-                        $content_keys = array(
-                            'title', 'editor', 'text', 'description', 'content',
-                            'heading', 'subtitle', 'caption', 'label', 'inner_text',
-                            'tab_title', 'tab_content', 'item_description', 'item_title',
-                            'alert_title', 'alert_description', 'html', 'shortcode',
-                            'testimonial_content', 'testimonial_name', 'testimonial_job',
-                            'blockquote_content', 'author_name',
-                            'title_text', 'description_text',
-                        );
-                        if ( in_array( $key, $content_keys, true ) || strpos( $key, 'text' ) !== false || strpos( $key, 'title' ) !== false || strpos( $key, 'description' ) !== false || strpos( $key, 'content' ) !== false ) {
+                        if ( strpos( $key, 'text' ) !== false || strpos( $key, 'title' ) !== false || strpos( $key, 'description' ) !== false || strpos( $key, 'content' ) !== false || strpos( $key, 'editor' ) !== false || strpos( $key, 'heading' ) !== false || strpos( $key, 'caption' ) !== false ) {
                             $clean = wp_strip_all_tags( $value );
                             $clean = html_entity_decode( $clean, ENT_QUOTES, 'UTF-8' );
                             if ( mb_strlen( $clean, 'UTF-8' ) > 2 ) {
@@ -200,7 +326,6 @@ class MCB_Content_Scanner {
                             }
                         }
                     }
-                    // Handle repeater fields (arrays of items with text)
                     if ( is_array( $value ) ) {
                         foreach ( $value as $item ) {
                             if ( is_array( $item ) ) {
@@ -221,7 +346,6 @@ class MCB_Content_Scanner {
                 }
             }
 
-            // Recurse into child elements
             if ( ! empty( $element['elements'] ) ) {
                 $text .= ' ' . $this->extract_elementor_text( $element['elements'] );
             }
@@ -237,16 +361,17 @@ class MCB_Content_Scanner {
      * @return array Array of content chunks.
      */
     private function split_into_chunks( $content ) {
-        if ( strlen( $content ) <= self::CHUNK_SIZE ) {
+        if ( mb_strlen( $content, 'UTF-8' ) <= self::CHUNK_SIZE ) {
             return array( $content );
         }
 
         $chunks = array();
-        $sentences = preg_split( '/(?<=[.!?])\s+/', $content, -1, PREG_SPLIT_NO_EMPTY );
+        // Split on sentence-ending punctuation (including Greek semicolon ';' used as question mark)
+        $sentences = preg_split( '/(?<=[.!?;·])\s+/u', $content, -1, PREG_SPLIT_NO_EMPTY );
         $current_chunk = '';
 
         foreach ( $sentences as $sentence ) {
-            if ( strlen( $current_chunk ) + strlen( $sentence ) + 1 > self::CHUNK_SIZE ) {
+            if ( mb_strlen( $current_chunk, 'UTF-8' ) + mb_strlen( $sentence, 'UTF-8' ) + 1 > self::CHUNK_SIZE ) {
                 if ( ! empty( $current_chunk ) ) {
                     $chunks[] = trim( $current_chunk );
                 }

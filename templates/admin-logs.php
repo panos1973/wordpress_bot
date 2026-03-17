@@ -8,22 +8,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap mcb-admin-wrap">
-    <h1><?php esc_html_e( 'Chat Logs', 'medical-chatbot' ); ?></h1>
-    <p class="description"><?php esc_html_e( 'Recent conversations with the chatbot (latest 100).', 'medical-chatbot' ); ?></p>
+    <h1><?php esc_html_e( 'Ιστορικό Συνομιλιών', 'medical-chatbot' ); ?></h1>
+    <p class="description"><?php esc_html_e( 'Πρόσφατες συνομιλίες με το chatbot (τελευταίες 100).', 'medical-chatbot' ); ?></p>
 
     <?php if ( empty( $logs ) ) : ?>
         <div class="mcb-no-logs">
-            <p><?php esc_html_e( 'No chat logs yet. Conversations will appear here once visitors start using the chatbot.', 'medical-chatbot' ); ?></p>
+            <p><?php esc_html_e( 'Δεν υπάρχουν συνομιλίες ακόμα. Οι συνομιλίες θα εμφανιστούν εδώ μόλις οι επισκέπτες αρχίσουν να χρησιμοποιούν το chatbot.', 'medical-chatbot' ); ?></p>
         </div>
     <?php else : ?>
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
-                    <th style="width:150px;"><?php esc_html_e( 'Date', 'medical-chatbot' ); ?></th>
-                    <th style="width:100px;"><?php esc_html_e( 'Session', 'medical-chatbot' ); ?></th>
-                    <th style="width:100px;"><?php esc_html_e( 'Model', 'medical-chatbot' ); ?></th>
-                    <th><?php esc_html_e( 'User Message', 'medical-chatbot' ); ?></th>
-                    <th><?php esc_html_e( 'Bot Response', 'medical-chatbot' ); ?></th>
+                    <th style="width:150px;"><?php esc_html_e( 'Ημερομηνία', 'medical-chatbot' ); ?></th>
+                    <th style="width:100px;"><?php esc_html_e( 'Συνεδρία', 'medical-chatbot' ); ?></th>
+                    <th style="width:100px;"><?php esc_html_e( 'Μοντέλο', 'medical-chatbot' ); ?></th>
+                    <th><?php esc_html_e( 'Μήνυμα Χρήστη', 'medical-chatbot' ); ?></th>
+                    <th><?php esc_html_e( 'Απάντηση Bot', 'medical-chatbot' ); ?></th>
                 </tr>
             </thead>
             <tbody>

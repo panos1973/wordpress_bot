@@ -40,13 +40,13 @@ class MCB_Chat_Engine {
         if ( is_wp_error( $response ) ) {
             return array(
                 'success' => false,
-                'message' => 'I apologize, but I am unable to process your request at the moment. Please try again later.',
+                'message' => 'Ζητούμε συγγνώμη, αλλά δεν μπορούμε να επεξεργαστούμε το αίτημά σας αυτή τη στιγμή. Παρακαλώ δοκιμάστε ξανά αργότερα.',
                 'error'   => $response->get_error_message(),
             );
         }
 
         // Append the disclaimer
-        $disclaimer = "\n\n---\n*⚕️ Disclaimer: This is not medical advice. The information provided is based on content from our website. Always consult a qualified healthcare professional for medical concerns.*";
+        $disclaimer = "\n\n---\n*⚕️ Αποποίηση ευθύνης: Αυτό δεν αποτελεί ιατρική συμβουλή. Οι πληροφορίες βασίζονται στο περιεχόμενο της ιστοσελίδας μας. Συμβουλευτείτε πάντα έναν εξειδικευμένο επαγγελματία υγείας για ιατρικά θέματα.*";
         $response_text = $response . $disclaimer;
 
         // Log the conversation
@@ -68,7 +68,7 @@ class MCB_Chat_Engine {
      */
     private function build_context( $chunks ) {
         if ( empty( $chunks ) ) {
-            return 'No relevant content was found on the website for this query.';
+            return 'Δεν βρέθηκε σχετικό περιεχόμενο στην ιστοσελίδα για αυτό το ερώτημα.';
         }
 
         $context_parts = array();
@@ -101,19 +101,19 @@ class MCB_Chat_Engine {
     private function build_system_prompt( $context ) {
         $site_name = get_bloginfo( 'name' );
 
-        return "You are a helpful medical information assistant for the website \"{$site_name}\". Your role is to help visitors find information that is available on our website.
+        return "Είσαι ένας βοηθός πληροφοριών για την ιστοσελίδα \"{$site_name}\". Ο ρόλος σου είναι να βοηθάς τους επισκέπτες να βρουν πληροφορίες που υπάρχουν στην ιστοσελίδα μας.
 
-IMPORTANT RULES:
-1. ONLY answer based on the website content provided below. Do NOT use any external knowledge or make up information.
-2. If the question cannot be answered from the provided website content, politely say that you don't have that information on the website and suggest the visitor contact the medical practice directly.
-3. Be helpful, professional, and empathetic in your responses.
-4. When referencing information, mention which page or article it comes from when possible.
-5. Never diagnose conditions, prescribe treatments, or provide specific medical advice beyond what is stated on the website.
-6. Keep responses concise and easy to understand.
-7. If the visitor asks about services, doctors, or procedures, only share what is listed in the website content.
-8. Respond in the same language the visitor uses.
+ΣΗΜΑΝΤΙΚΟΙ ΚΑΝΟΝΕΣ:
+1. Απάντα ΜΟΝΟ βάσει του περιεχομένου της ιστοσελίδας που παρέχεται παρακάτω. ΜΗΝ χρησιμοποιείς εξωτερικές γνώσεις και ΜΗΝ επινοείς πληροφορίες.
+2. Αν η ερώτηση δεν μπορεί να απαντηθεί από το περιεχόμενο της ιστοσελίδας, πες ευγενικά ότι δεν διαθέτεις αυτή την πληροφορία και πρότεινε στον επισκέπτη να επικοινωνήσει απευθείας με το ιατρείο.
+3. Να είσαι εξυπηρετικός, επαγγελματικός και με ενσυναίσθηση στις απαντήσεις σου.
+4. Όταν αναφέρεις πληροφορίες, ανέφερε από ποια σελίδα ή άρθρο προέρχονται όταν είναι δυνατόν.
+5. Μην διαγνώσεις παθήσεις, μην συνταγογραφήσεις θεραπείες και μην δίνεις συγκεκριμένες ιατρικές συμβουλές πέρα από αυτά που αναφέρονται στην ιστοσελίδα.
+6. Κράτα τις απαντήσεις σύντομες και κατανοητές.
+7. Αν ο επισκέπτης ρωτήσει για υπηρεσίες, γιατρούς ή θεραπείες, μοιράσου μόνο ό,τι αναφέρεται στο περιεχόμενο της ιστοσελίδας.
+8. Απάντα ΠΑΝΤΑ στα Ελληνικά.
 
-WEBSITE CONTENT:
+ΠΕΡΙΕΧΟΜΕΝΟ ΙΣΤΟΣΕΛΙΔΑΣ:
 {$context}";
     }
 

@@ -8,51 +8,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap mcb-admin-wrap">
-    <h1><?php esc_html_e( 'Medical Chatbot Settings', 'medical-chatbot' ); ?> <small style="font-size:13px;color:#646970;">v<?php echo esc_html( MCB_VERSION ); ?></small></h1>
+    <h1><?php esc_html_e( 'Ρυθμίσεις Medical Chatbot', 'medical-chatbot' ); ?> <small style="font-size:13px;color:#646970;">v<?php echo esc_html( MCB_VERSION ); ?></small></h1>
 
     <!-- Status Dashboard -->
     <div class="mcb-dashboard">
         <div class="mcb-status-cards">
             <div class="mcb-card">
-                <h3><?php esc_html_e( 'Content Index', 'medical-chatbot' ); ?></h3>
+                <h3><?php esc_html_e( 'Ευρετήριο Περιεχομένου', 'medical-chatbot' ); ?></h3>
                 <div class="mcb-stat">
                     <span class="mcb-stat-number"><?php echo esc_html( $stats['total_posts'] ); ?></span>
-                    <span class="mcb-stat-label"><?php esc_html_e( 'Pages Indexed', 'medical-chatbot' ); ?></span>
+                    <span class="mcb-stat-label"><?php esc_html_e( 'Σελίδες', 'medical-chatbot' ); ?></span>
                 </div>
                 <div class="mcb-stat">
                     <span class="mcb-stat-number"><?php echo esc_html( $stats['total_chunks'] ); ?></span>
-                    <span class="mcb-stat-label"><?php esc_html_e( 'Content Chunks', 'medical-chatbot' ); ?></span>
+                    <span class="mcb-stat-label"><?php esc_html_e( 'Τμήματα Περιεχομένου', 'medical-chatbot' ); ?></span>
                 </div>
             </div>
             <div class="mcb-card">
-                <h3><?php esc_html_e( 'Last Scan', 'medical-chatbot' ); ?></h3>
+                <h3><?php esc_html_e( 'Τελευταία Σάρωση', 'medical-chatbot' ); ?></h3>
                 <p class="mcb-last-scan">
                     <?php
                     if ( ! empty( $stats['last_scan'] ) ) {
                         echo esc_html( $stats['last_scan'] );
                     } else {
-                        esc_html_e( 'Never scanned', 'medical-chatbot' );
+                        esc_html_e( 'Δεν έχει γίνει σάρωση', 'medical-chatbot' );
                     }
                     ?>
                 </p>
                 <button id="mcb-scan-btn" class="button button-primary">
-                    <?php esc_html_e( 'Scan Now', 'medical-chatbot' ); ?>
+                    <?php esc_html_e( 'Σάρωση Τώρα', 'medical-chatbot' ); ?>
                 </button>
                 <span id="mcb-scan-status" class="mcb-status-msg"></span>
             </div>
             <div class="mcb-card">
-                <h3><?php esc_html_e( 'AI Provider', 'medical-chatbot' ); ?></h3>
+                <h3><?php esc_html_e( 'Πάροχος AI', 'medical-chatbot' ); ?></h3>
                 <p class="mcb-provider-status">
                     <?php
                     $provider = get_option( 'mcb_ai_provider', 'claude' );
                     if ( 'claude' === $provider ) {
                         $key = get_option( 'mcb_claude_api_key', '' );
                         echo '<strong>Claude Haiku 4.5</strong><br>';
-                        echo $key ? '<span class="mcb-status-ok">API Key Set</span>' : '<span class="mcb-status-error">API Key Missing</span>';
+                        echo $key ? '<span class="mcb-status-ok">Κλειδί API Ενεργό</span>' : '<span class="mcb-status-error">Λείπει Κλειδί API</span>';
                     } else {
                         $key = get_option( 'mcb_gemini_api_key', '' );
                         echo '<strong>Gemini 3.0 Flash</strong><br>';
-                        echo $key ? '<span class="mcb-status-ok">API Key Set</span>' : '<span class="mcb-status-error">API Key Missing</span>';
+                        echo $key ? '<span class="mcb-status-ok">Κλειδί API Ενεργό</span>' : '<span class="mcb-status-error">Λείπει Κλειδί API</span>';
                     }
                     ?>
                 </p>
@@ -65,11 +65,11 @@ if ( ! defined( 'ABSPATH' ) ) {
         <?php settings_fields( 'mcb_settings' ); ?>
 
         <div class="mcb-settings-section">
-            <h2><?php esc_html_e( 'AI Provider Settings', 'medical-chatbot' ); ?></h2>
+            <h2><?php esc_html_e( 'Ρυθμίσεις Παρόχου AI', 'medical-chatbot' ); ?></h2>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="mcb_ai_provider"><?php esc_html_e( 'AI Model', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_ai_provider"><?php esc_html_e( 'Μοντέλο AI', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <select name="mcb_ai_provider" id="mcb_ai_provider">
@@ -80,58 +80,58 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 Gemini 3.0 Flash (Google)
                             </option>
                         </select>
-                        <p class="description"><?php esc_html_e( 'Select which AI model to use for chat responses.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Επιλέξτε ποιο μοντέλο AI θα χρησιμοποιηθεί για τις απαντήσεις.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="mcb_claude_api_key"><?php esc_html_e( 'Claude API Key', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_claude_api_key"><?php esc_html_e( 'Κλειδί API Claude', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <input type="password" name="mcb_claude_api_key" id="mcb_claude_api_key"
                                value="<?php echo esc_attr( get_option( 'mcb_claude_api_key' ) ); ?>"
                                class="regular-text" autocomplete="off">
-                        <p class="description"><?php esc_html_e( 'Your Anthropic API key for Claude Haiku 4.5.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Το κλειδί API της Anthropic για Claude Haiku 4.5.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="mcb_gemini_api_key"><?php esc_html_e( 'Gemini API Key', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_gemini_api_key"><?php esc_html_e( 'Κλειδί API Gemini', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <input type="password" name="mcb_gemini_api_key" id="mcb_gemini_api_key"
                                value="<?php echo esc_attr( get_option( 'mcb_gemini_api_key' ) ); ?>"
                                class="regular-text" autocomplete="off">
-                        <p class="description"><?php esc_html_e( 'Your Google AI API key for Gemini 3.0 Flash.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Το κλειδί Google AI API για Gemini 3.0 Flash.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
             </table>
         </div>
 
         <div class="mcb-settings-section">
-            <h2><?php esc_html_e( 'Content Scanning', 'medical-chatbot' ); ?></h2>
+            <h2><?php esc_html_e( 'Σάρωση Περιεχομένου', 'medical-chatbot' ); ?></h2>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="mcb_scan_frequency"><?php esc_html_e( 'Scan Frequency', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_scan_frequency"><?php esc_html_e( 'Συχνότητα Σάρωσης', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <select name="mcb_scan_frequency" id="mcb_scan_frequency">
                             <option value="daily" <?php selected( get_option( 'mcb_scan_frequency' ), 'daily' ); ?>>
-                                <?php esc_html_e( 'Daily', 'medical-chatbot' ); ?>
+                                <?php esc_html_e( 'Καθημερινά', 'medical-chatbot' ); ?>
                             </option>
                             <option value="weekly" <?php selected( get_option( 'mcb_scan_frequency' ), 'weekly' ); ?>>
-                                <?php esc_html_e( 'Weekly', 'medical-chatbot' ); ?>
+                                <?php esc_html_e( 'Εβδομαδιαία', 'medical-chatbot' ); ?>
                             </option>
                             <option value="monthly" <?php selected( get_option( 'mcb_scan_frequency' ), 'monthly' ); ?>>
-                                <?php esc_html_e( 'Monthly', 'medical-chatbot' ); ?>
+                                <?php esc_html_e( 'Μηνιαία', 'medical-chatbot' ); ?>
                             </option>
                         </select>
-                        <p class="description"><?php esc_html_e( 'How often the bot should re-scan your website content.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Πόσο συχνά θα σαρώνεται εκ νέου το περιεχόμενο της ιστοσελίδας.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php esc_html_e( 'Content Types to Scan', 'medical-chatbot' ); ?></th>
+                    <th scope="row"><?php esc_html_e( 'Τύποι Περιεχομένου', 'medical-chatbot' ); ?></th>
                     <td>
                         <?php
                         $selected_types = get_option( 'mcb_post_types', array( 'post', 'page' ) );
@@ -146,49 +146,49 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 <?php echo esc_html( $pt->labels->name ); ?>
                             </label>
                         <?php endforeach; ?>
-                        <p class="description"><?php esc_html_e( 'Select which content types the bot should index and use for answers.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Επιλέξτε ποιους τύπους περιεχομένου θα σαρώνει και θα χρησιμοποιεί το chatbot.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="mcb_max_context_chunks"><?php esc_html_e( 'Max Context Chunks', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_max_context_chunks"><?php esc_html_e( 'Μέγιστα Τμήματα', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <input type="number" name="mcb_max_context_chunks" id="mcb_max_context_chunks"
-                               value="<?php echo esc_attr( get_option( 'mcb_max_context_chunks', 5 ) ); ?>"
+                               value="<?php echo esc_attr( get_option( 'mcb_max_context_chunks', 10 ) ); ?>"
                                min="1" max="20" class="small-text">
-                        <p class="description"><?php esc_html_e( 'Maximum number of content chunks to send as context to the AI (higher = more context but higher cost).', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Μέγιστος αριθμός τμημάτων περιεχομένου που αποστέλλονται στο AI (περισσότερα = πιο πλήρεις απαντήσεις αλλά υψηλότερο κόστος).', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
             </table>
         </div>
 
         <div class="mcb-settings-section">
-            <h2><?php esc_html_e( 'Chat Widget Appearance', 'medical-chatbot' ); ?></h2>
+            <h2><?php esc_html_e( 'Εμφάνιση Chat Widget', 'medical-chatbot' ); ?></h2>
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="mcb_chat_title"><?php esc_html_e( 'Chat Title', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_chat_title"><?php esc_html_e( 'Τίτλος Chat', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <input type="text" name="mcb_chat_title" id="mcb_chat_title"
-                               value="<?php echo esc_attr( get_option( 'mcb_chat_title', 'Medical Assistant' ) ); ?>"
+                               value="<?php echo esc_attr( get_option( 'mcb_chat_title', 'Βοηθός' ) ); ?>"
                                class="regular-text">
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="mcb_welcome_message"><?php esc_html_e( 'Welcome Message', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_welcome_message"><?php esc_html_e( 'Μήνυμα Καλωσορίσματος', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <textarea name="mcb_welcome_message" id="mcb_welcome_message" rows="3" class="large-text"><?php
-                            echo esc_textarea( get_option( 'mcb_welcome_message', 'Hello! I can help you find information from our website. How can I assist you today?' ) );
+                            echo esc_textarea( get_option( 'mcb_welcome_message', 'Πώς μπορώ να σας βοηθήσω;' ) );
                         ?></textarea>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="mcb_primary_color"><?php esc_html_e( 'Primary Color', 'medical-chatbot' ); ?></label>
+                        <label for="mcb_primary_color"><?php esc_html_e( 'Κύριο Χρώμα', 'medical-chatbot' ); ?></label>
                     </th>
                     <td>
                         <input type="color" name="mcb_primary_color" id="mcb_primary_color"
@@ -198,16 +198,16 @@ if ( ! defined( 'ABSPATH' ) ) {
             </table>
         </div>
 
-        <?php submit_button(); ?>
+        <?php submit_button( 'Αποθήκευση Αλλαγών' ); ?>
     </form>
 
     <!-- Test Chat Section -->
     <div class="mcb-settings-section">
-        <h2><?php esc_html_e( 'Test Chat', 'medical-chatbot' ); ?></h2>
-        <p class="description"><?php esc_html_e( 'Test the chatbot with a sample question to make sure everything works.', 'medical-chatbot' ); ?></p>
+        <h2><?php esc_html_e( 'Δοκιμή Chat', 'medical-chatbot' ); ?></h2>
+        <p class="description"><?php esc_html_e( 'Δοκιμάστε το chatbot με μια ερώτηση για να βεβαιωθείτε ότι λειτουργεί σωστά.', 'medical-chatbot' ); ?></p>
         <div class="mcb-test-chat">
-            <input type="text" id="mcb-test-input" class="regular-text" placeholder="<?php esc_attr_e( 'Type a test question...', 'medical-chatbot' ); ?>">
-            <button id="mcb-test-btn" class="button button-secondary"><?php esc_html_e( 'Test', 'medical-chatbot' ); ?></button>
+            <input type="text" id="mcb-test-input" class="regular-text" placeholder="<?php esc_attr_e( 'Γράψτε μια δοκιμαστική ερώτηση...', 'medical-chatbot' ); ?>">
+            <button id="mcb-test-btn" class="button button-secondary"><?php esc_html_e( 'Δοκιμή', 'medical-chatbot' ); ?></button>
         </div>
         <div id="mcb-test-result" class="mcb-test-result" style="display:none;"></div>
     </div>

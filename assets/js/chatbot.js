@@ -108,12 +108,12 @@
                         conversationHistory = conversationHistory.slice(-5);
                     }
                 } else {
-                    appendMessage(data.message || 'Sorry, something went wrong. Please try again.', 'bot');
+                    appendMessage(data.message || 'Λυπούμαστε, κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά.', 'bot');
                 }
             } else if (xhr.status === 429) {
-                appendMessage('You are sending too many messages. Please wait a moment and try again.', 'bot');
+                appendMessage('Στέλνετε πολλά μηνύματα. Παρακαλώ περιμένετε λίγο και δοκιμάστε ξανά.', 'bot');
             } else {
-                appendMessage('Sorry, I encountered an error. Please try again later.', 'bot');
+                appendMessage('Λυπούμαστε, παρουσιάστηκε σφάλμα. Παρακαλώ δοκιμάστε αργότερα.', 'bot');
             }
 
             inputField.focus();
@@ -123,7 +123,7 @@
             hideTyping();
             isWaiting = false;
             sendBtn.disabled = false;
-            appendMessage('Sorry, there was a connection error. Please check your internet and try again.', 'bot');
+            appendMessage('Λυπούμαστε, υπήρξε σφάλμα σύνδεσης. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.', 'bot');
         };
 
         xhr.send(JSON.stringify({
@@ -153,7 +153,7 @@
         if (type === 'bot' && sources && sources.length > 0) {
             var sourcesDiv = document.createElement('div');
             sourcesDiv.className = 'mcb-sources';
-            var sourcesHtml = '<br><small><strong>Sources:</strong> ';
+            var sourcesHtml = '<br><small><strong>Πηγές:</strong> ';
             for (var i = 0; i < sources.length; i++) {
                 if (i > 0) sourcesHtml += ', ';
                 sourcesHtml += '<a href="' + escapeHtml(sources[i].url) + '" target="_blank" rel="noopener">' + escapeHtml(sources[i].title) + '</a>';
