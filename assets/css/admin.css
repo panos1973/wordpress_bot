@@ -1,0 +1,133 @@
+/**
+ * Medical Chatbot Admin Styles
+ */
+
+.mcb-admin-wrap {
+    max-width: 900px;
+}
+
+/* Dashboard Cards */
+.mcb-dashboard {
+    margin: 20px 0;
+}
+
+.mcb-status-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.mcb-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 8px;
+    padding: 20px;
+    flex: 1;
+    min-width: 200px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.mcb-card h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #1d2327;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mcb-stat {
+    margin-bottom: 8px;
+}
+
+.mcb-stat-number {
+    font-size: 28px;
+    font-weight: 600;
+    color: #0073aa;
+    display: block;
+}
+
+.mcb-stat-label {
+    font-size: 13px;
+    color: #646970;
+}
+
+.mcb-last-scan {
+    font-size: 14px;
+    color: #1d2327;
+    margin: 0 0 12px 0;
+}
+
+.mcb-status-ok {
+    color: #00a32a;
+    font-weight: 500;
+}
+
+.mcb-status-error {
+    color: #d63638;
+    font-weight: 500;
+}
+
+.mcb-status-msg {
+    margin-left: 10px;
+    font-style: italic;
+    color: #646970;
+}
+
+/* Settings Sections */
+.mcb-settings-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+}
+
+.mcb-settings-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Test Chat */
+.mcb-test-chat {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.mcb-test-chat input {
+    flex: 1;
+}
+
+.mcb-test-result {
+    background: #f6f7f7;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 16px;
+    margin-top: 12px;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Logs */
+.mcb-no-logs {
+    background: #f6f7f7;
+    padding: 30px;
+    text-align: center;
+    border-radius: 6px;
+    color: #646970;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .mcb-status-cards {
+        flex-direction: column;
+    }
+
+    .mcb-test-chat {
+        flex-direction: column;
+    }
+}
