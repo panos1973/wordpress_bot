@@ -51,7 +51,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         echo $key ? '<span class="mcb-status-ok">API Key Set</span>' : '<span class="mcb-status-error">API Key Missing</span>';
                     } else {
                         $key = get_option( 'mcb_gemini_api_key', '' );
-                        echo '<strong>Gemini 2.0 Flash</strong><br>';
+                        echo '<strong>Gemini 3.0 Flash</strong><br>';
                         echo $key ? '<span class="mcb-status-ok">API Key Set</span>' : '<span class="mcb-status-error">API Key Missing</span>';
                     }
                     ?>
@@ -77,7 +77,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 Claude Haiku 4.5 (Anthropic)
                             </option>
                             <option value="gemini" <?php selected( get_option( 'mcb_ai_provider' ), 'gemini' ); ?>>
-                                Gemini 2.0 Flash (Google)
+                                Gemini 3.0 Flash (Google)
                             </option>
                         </select>
                         <p class="description"><?php esc_html_e( 'Select which AI model to use for chat responses.', 'medical-chatbot' ); ?></p>
@@ -102,7 +102,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input type="password" name="mcb_gemini_api_key" id="mcb_gemini_api_key"
                                value="<?php echo esc_attr( get_option( 'mcb_gemini_api_key' ) ); ?>"
                                class="regular-text" autocomplete="off">
-                        <p class="description"><?php esc_html_e( 'Your Google AI API key for Gemini 2.0 Flash.', 'medical-chatbot' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Your Google AI API key for Gemini 3.0 Flash.', 'medical-chatbot' ); ?></p>
                     </td>
                 </tr>
             </table>

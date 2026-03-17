@@ -190,7 +190,7 @@ WEBSITE CONTENT:
     }
 
     /**
-     * Call Gemini 2.0 Flash API.
+     * Call Gemini 3.0 Flash API.
      *
      * @param string $system_prompt The system prompt.
      * @param string $message       The user message.
@@ -224,7 +224,7 @@ WEBSITE CONTENT:
             'parts' => array( array( 'text' => $message ) ),
         );
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $api_key;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=' . $api_key;
 
         $response = wp_remote_post(
             $url,
