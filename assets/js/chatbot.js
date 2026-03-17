@@ -149,20 +149,6 @@
 
         msgDiv.innerHTML = formatted;
 
-        // Add source links for bot messages
-        if (type === 'bot' && sources && sources.length > 0) {
-            var sourcesDiv = document.createElement('div');
-            sourcesDiv.className = 'mcb-sources';
-            var sourcesHtml = '<br><small><strong>Πηγές:</strong> ';
-            for (var i = 0; i < sources.length; i++) {
-                if (i > 0) sourcesHtml += ', ';
-                sourcesHtml += '<a href="' + escapeHtml(sources[i].url) + '" target="_blank" rel="noopener">' + escapeHtml(sources[i].title) + '</a>';
-            }
-            sourcesHtml += '</small>';
-            sourcesDiv.innerHTML = sourcesHtml;
-            msgDiv.appendChild(sourcesDiv);
-        }
-
         messagesArea.appendChild(msgDiv);
         messagesArea.scrollTop = messagesArea.scrollHeight;
     }
