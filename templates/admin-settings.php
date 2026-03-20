@@ -135,6 +135,27 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <div class="mcb-settings-section">
+            <h2><?php esc_html_e( 'Οδηγίες Chatbot', 'medical-chatbot' ); ?></h2>
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="mcb_custom_prompt"><?php esc_html_e( 'Προσαρμοσμένες Οδηγίες', 'medical-chatbot' ); ?></label>
+                    </th>
+                    <td>
+                        <textarea name="mcb_custom_prompt" id="mcb_custom_prompt" rows="8" class="large-text"><?php echo esc_textarea( get_option( 'mcb_custom_prompt', '' ) ); ?></textarea>
+                        <p class="description">
+                            <?php esc_html_e( 'Προσθέστε οδηγίες ειδικές για το ιατρείο/κλινική σας. Π.χ. ειδικότητα γιατρού, τρόπος επικοινωνίας, ωράριο, ή οτιδήποτε θέλετε να γνωρίζει ο βοηθός.', 'medical-chatbot' ); ?>
+                        </p>
+                        <p class="description">
+                            <strong><?php esc_html_e( 'Παράδειγμα:', 'medical-chatbot' ); ?></strong>
+                            <?php esc_html_e( 'Το ιατρείο είναι οδοντιατρικό. Ο γιατρός είναι ο Δρ. Παπαδόπουλος, ειδικός στην αισθητική οδοντιατρική. Τηλέφωνο: 210-1234567. Ωράριο: Δευ-Παρ 09:00-17:00.', 'medical-chatbot' ); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="mcb-settings-section">
             <h2><?php esc_html_e( 'Σάρωση Περιεχομένου', 'medical-chatbot' ); ?></h2>
             <table class="form-table">
                 <tr>

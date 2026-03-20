@@ -19,6 +19,7 @@ $options = array(
     'mcb_claude_api_key',
     'mcb_gemini_api_key',
     'mcb_gemini_model',
+    'mcb_custom_prompt',
     'mcb_scan_frequency',
     'mcb_post_types',
     'mcb_chat_title',

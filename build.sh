@@ -52,6 +52,9 @@ fi
 
 ZIP_NAME="${PLUGIN_SLUG}-${VERSION}.zip"
 
+# Remove any previous version zip files so only the latest remains.
+rm -f ${PLUGIN_SLUG}-*.zip 2>/dev/null || true
+
 echo "Building $PLUGIN_SLUG v$VERSION..."
 echo ""
 

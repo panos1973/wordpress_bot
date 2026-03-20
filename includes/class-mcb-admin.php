@@ -20,27 +20,45 @@ class MCB_Admin {
     }
 
     public function add_admin_menu() {
-        add_menu_page(
-            __( 'Medical Chatbot', 'medical-chatbot' ),
-            __( 'Medical Chatbot', 'medical-chatbot' ),
-            'manage_options',
-            'medical-chatbot',
-            array( $this, 'render_settings_page' ),
-            'dashicons-format-chat',
-            80
-        );
+        global $menu;
 
+        // Create the Publisize top-level menu only if it doesn't already exist.
+        $publisize_exists = false;
+        if ( is_array( $menu ) ) {
+            foreach ( $menu as $item ) {
+                if ( isset( $item[2] ) && 'publisize' === $item[2] ) {
+                    $publisize_exists = true;
+                    break;
+                }
+            }
+        }
+
+        if ( ! $publisize_exists ) {
+            add_menu_page(
+                'Publisize',
+                'Publisize',
+                'manage_options',
+                'publisize',
+                '__return_null',
+                'dashicons-admin-generic',
+                80
+            );
+            // Remove the auto-generated first submenu that duplicates the parent.
+            remove_submenu_page( 'publisize', 'publisize' );
+        }
+
+        // Add chatbot pages under the Publisize menu.
         add_submenu_page(
-            'medical-chatbot',
-            __( 'Settings', 'medical-chatbot' ),
-            __( 'Settings', 'medical-chatbot' ),
+            'publisize',
+            __( 'Medical Chatbot', 'medical-chatbot' ),
+            __( 'Medical Chatbot', 'medical-chatbot' ),
             'manage_options',
             'medical-chatbot',
             array( $this, 'render_settings_page' )
         );
 
         add_submenu_page(
-            'medical-chatbot',
+            'publisize',
             __( 'Chat Logs', 'medical-chatbot' ),
             __( 'Chat Logs', 'medical-chatbot' ),
             'manage_options',
@@ -62,6 +80,10 @@ class MCB_Admin {
         ) );
         register_setting( 'mcb_settings', 'mcb_gemini_model', array(
             'sanitize_callback' => 'sanitize_text_field',
+        ) );
+
+        register_setting( 'mcb_settings', 'mcb_custom_prompt', array(
+            'sanitize_callback' => 'sanitize_textarea_field',
         ) );
 
         // Scan Settings
@@ -101,7 +123,7 @@ class MCB_Admin {
     }
 
     public function enqueue_admin_assets( $hook ) {
-        if ( false === strpos( $hook, 'medical-chatbot' ) ) {
+        if ( false === strpos( $hook, 'medical-chatbot' ) && false === strpos( $hook, 'publisize' ) ) {
             return;
         }
 
