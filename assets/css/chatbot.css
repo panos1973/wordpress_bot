@@ -108,8 +108,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 16px;
-    min-height: 300px;
-    max-height: 370px;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 12px;
