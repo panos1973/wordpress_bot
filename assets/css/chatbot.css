@@ -51,7 +51,7 @@
     bottom: 70px;
     right: 0;
     width: 370px;
-    max-height: 520px;
+    height: 520px;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
@@ -247,7 +247,7 @@
 @media (max-width: 480px) {
     #mcb-chat-window {
         width: calc(100vw - 24px);
-        max-height: calc(100vh - 100px);
+        height: calc(100vh - 100px);
         right: -8px;
         bottom: 65px;
     }
