@@ -150,8 +150,8 @@
         msgDiv.innerHTML = formatted;
 
         messagesArea.appendChild(msgDiv);
-        // Scroll so the top of the new message is visible, not the bottom
-        msgDiv.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        // Scroll to bottom so latest content is always visible
+        messagesArea.scrollTop = messagesArea.scrollHeight;
     }
 
     function showTyping() {
