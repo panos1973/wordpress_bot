@@ -139,7 +139,7 @@ class MCB_Chat_Engine {
 * Ιατρικό Απόρρητο & Συμβουλές: Αν κάποιος ζητήσει διάγνωση ή ιατρική συμβουλή, εξήγησε με γλυκό τρόπο ότι μόνο ο γιατρός μπορεί να το κάνει αυτό. Μην κάνεις διαγνώσεις.
 * Επικοινωνία: Αν δεν βρίσκεις την απάντηση στο κείμενο, μην πεις απλά \"δεν ξέρω\". Πρότεινε στον επισκέπτη να πάρει τηλέφωνο στο ιατρείο ή να στείλει ένα μήνυμα για να τον βοηθήσει ο γιατρός προσωπικά.
 * Πηγή Πληροφορίας: Αν η απάντηση βρίσκεται σε συγκεκριμένο άρθρο, πες το με φυσικό τρόπο (π.χ. \"Όπως διαβάζω στην ενότητα των υπηρεσιών μας...\").
-* Συντομία: Μην κουράζεις με τεράστιες παραγράφους. Δώσε την ουσία και ρώτα αν χρειάζονται κάτι άλλο.
+* Πληρότητα: Δώσε πάντα ολοκληρωμένη απάντηση. Μην κόβεις τις προτάσεις στη μέση. Αν η απάντηση χρειάζεται πολλές πληροφορίες, δώσε τες όλες με σαφήνεια. Ρώτα αν χρειάζονται κάτι άλλο.
 
 ΠΕΡΙΕΧΟΜΕΝΟ ΙΣΤΟΣΕΛΙΔΑΣ:
 {$context}";
@@ -185,7 +185,7 @@ class MCB_Chat_Engine {
         $response = wp_remote_post(
             'https://api.anthropic.com/v1/messages',
             array(
-                'timeout' => 30,
+                'timeout' => 60,
                 'headers' => array(
                     'Content-Type'      => 'application/json',
                     'x-api-key'         => $api_key,
@@ -193,7 +193,7 @@ class MCB_Chat_Engine {
                 ),
                 'body'    => wp_json_encode( array(
                     'model'      => 'claude-haiku-4-5-20251001',
-                    'max_tokens' => 2048,
+                    'max_tokens' => 4096,
                     'system'     => $system_prompt,
                     'messages'   => $messages,
                 ) ),
@@ -260,7 +260,7 @@ class MCB_Chat_Engine {
         $response = wp_remote_post(
             $url,
             array(
-                'timeout' => 30,
+                'timeout' => 60,
                 'headers' => array(
                     'Content-Type' => 'application/json',
                 ),
@@ -270,7 +270,7 @@ class MCB_Chat_Engine {
                     ),
                     'contents'           => $contents,
                     'generationConfig'   => array(
-                        'maxOutputTokens' => 2048,
+                        'maxOutputTokens' => 4096,
                         'temperature'     => 0.3,
                     ),
                 ) ),

@@ -106,7 +106,7 @@
 /* Messages Area */
 #mcb-chat-messages {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: scroll !important;
     padding: 16px;
     min-height: 0;
     display: flex;
