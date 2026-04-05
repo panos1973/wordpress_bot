@@ -18,26 +18,40 @@
 
 /* Toggle Button */
 #mcb-chat-toggle {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--mcb-primary);
-    color: #fff;
-    border: none;
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    min-height: 56px !important;
+    max-width: 56px !important;
+    max-height: 56px !important;
+    border-radius: 50% !important;
+    background: var(--mcb-primary) !important;
+    color: #fff !important;
+    border: none !important;
     cursor: pointer;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: absolute;
     bottom: 0;
     right: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+#mcb-chat-toggle svg {
+    fill: none !important;
+    stroke: #fff !important;
+    width: 24px !important;
+    height: 24px !important;
 }
 
 #mcb-chat-toggle:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
 #mcb-chat-toggle:focus {
