@@ -185,7 +185,7 @@ class MCB_Chat_Engine {
         $response = wp_remote_post(
             'https://api.anthropic.com/v1/messages',
             array(
-                'timeout' => 30,
+                'timeout' => 60,
                 'headers' => array(
                     'Content-Type'      => 'application/json',
                     'x-api-key'         => $api_key,
@@ -193,7 +193,7 @@ class MCB_Chat_Engine {
                 ),
                 'body'    => wp_json_encode( array(
                     'model'      => 'claude-haiku-4-5-20251001',
-                    'max_tokens' => 2048,
+                    'max_tokens' => 4096,
                     'system'     => $system_prompt,
                     'messages'   => $messages,
                 ) ),
@@ -260,7 +260,7 @@ class MCB_Chat_Engine {
         $response = wp_remote_post(
             $url,
             array(
-                'timeout' => 30,
+                'timeout' => 60,
                 'headers' => array(
                     'Content-Type' => 'application/json',
                 ),
@@ -270,7 +270,7 @@ class MCB_Chat_Engine {
                     ),
                     'contents'           => $contents,
                     'generationConfig'   => array(
-                        'maxOutputTokens' => 2048,
+                        'maxOutputTokens' => 4096,
                         'temperature'     => 0.3,
                     ),
                 ) ),
