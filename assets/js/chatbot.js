@@ -42,6 +42,23 @@
         });
     }
 
+    function resizeMessagesArea() {
+        // Explicitly set the messages area height so scrolling works
+        // regardless of theme CSS interference with flexbox.
+        var header = document.getElementById('mcb-chat-header');
+        var inputArea = document.getElementById('mcb-chat-input-area');
+        if (header && inputArea && chatWindow) {
+            var windowHeight = chatWindow.offsetHeight;
+            var headerHeight = header.offsetHeight;
+            var inputHeight = inputArea.offsetHeight;
+            var available = windowHeight - headerHeight - inputHeight;
+            if (available > 0) {
+                messagesArea.style.height = available + 'px';
+                messagesArea.style.maxHeight = available + 'px';
+            }
+        }
+    }
+
     function toggleChat() {
         isOpen = !isOpen;
 
@@ -55,6 +72,9 @@
             if (messagesArea.children.length === 0 && config.welcomeMessage) {
                 appendMessage(config.welcomeMessage, 'bot');
             }
+
+            // Force correct messages area height after layout
+            setTimeout(resizeMessagesArea, 50);
         } else {
             chatWindow.style.display = 'none';
             iconChat.style.display = 'block';
@@ -150,7 +170,8 @@
         msgDiv.innerHTML = formatted;
 
         messagesArea.appendChild(msgDiv);
-        // Scroll to bottom so latest content is always visible
+        // Ensure messages area is properly sized and scroll to bottom
+        resizeMessagesArea();
         messagesArea.scrollTop = messagesArea.scrollHeight;
     }
 
