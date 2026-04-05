@@ -252,13 +252,12 @@ class MCB_Content_Scanner {
         $html = preg_replace( '/<style\b[^>]*>.*?<\/style>/is', '', $html );
         $html = preg_replace( '/<noscript\b[^>]*>.*?<\/noscript>/is', '', $html );
 
-        // Remove common non-content areas by tag
+        // Remove common non-content areas by tag (keep header/footer as they
+        // often contain contact info, address, phone numbers, and opening hours)
         $html = preg_replace( '/<nav\b[^>]*>.*?<\/nav>/is', '', $html );
-        $html = preg_replace( '/<header\b[^>]*>.*?<\/header>/is', '', $html );
-        $html = preg_replace( '/<footer\b[^>]*>.*?<\/footer>/is', '', $html );
 
         // Remove elements by common non-content classes/IDs
-        $html = preg_replace( '/<[^>]+(class|id)\s*=\s*["\'][^"\']*\b(menu|nav|sidebar|widget|cookie|popup|modal|banner|advertisement|social)[^"\']*["\'][^>]*>.*?<\/[a-z]+>/is', '', $html );
+        $html = preg_replace( '/<[^>]+(class|id)\s*=\s*["\'][^"\']*\b(menu|nav|sidebar|cookie|popup|modal|banner|advertisement|social)[^"\']*["\'][^>]*>.*?<\/[a-z]+>/is', '', $html );
 
         // Remove HTML comments
         $html = preg_replace( '/<!--.*?-->/s', '', $html );
