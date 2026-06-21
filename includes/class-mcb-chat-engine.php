@@ -18,6 +18,7 @@ class MCB_Chat_Engine {
      */
     public function get_response( $message, $history = array() ) {
         $provider = get_option( 'mcb_ai_provider', 'claude' );
+        $lang     = $this->detect_language( $message );
 
         // Search for relevant content
         $scanner = new MCB_Content_Scanner();
@@ -25,10 +26,10 @@ class MCB_Chat_Engine {
         $relevant_content = $scanner->search( $message, $max_chunks );
 
         // Build context from relevant content
-        $context = $this->build_context( $relevant_content );
+        $context = $this->build_context( $relevant_content, $lang );
 
         // Build the prompt
-        $system_prompt = $this->build_system_prompt( $context );
+        $system_prompt = $this->build_system_prompt( $context, $lang );
 
         // Call the appropriate AI provider
         if ( 'gemini' === $provider ) {
@@ -48,15 +49,25 @@ class MCB_Chat_Engine {
             // Log failed conversation so admin can see it in Logs tab
             $this->log_conversation( $message, '[ERROR] ' . $error_msg, $provider );
 
+            $error_messages = array(
+                'el' => 'Ζητούμε συγγνώμη, αλλά δεν μπορούμε να επεξεργαστούμε το αίτημά σας αυτή τη στιγμή. Παρακαλώ δοκιμάστε ξανά αργότερα.',
+                'en' => 'We\'re sorry, but we cannot process your request at this time. Please try again later.',
+                'fr' => 'Nous sommes désolés, mais nous ne pouvons pas traiter votre demande pour le moment. Veuillez réessayer ultérieurement.',
+            );
             return array(
                 'success' => false,
-                'message' => 'Ζητούμε συγγνώμη, αλλά δεν μπορούμε να επεξεργαστούμε το αίτημά σας αυτή τη στιγμή. Παρακαλώ δοκιμάστε ξανά αργότερα.',
+                'message' => isset( $error_messages[ $lang ] ) ? $error_messages[ $lang ] : $error_messages['en'],
                 'error'   => $error_msg,
             );
         }
 
-        // Append the disclaimer
-        $disclaimer = "\n\n---\n*⚕️ Αποποίηση ευθύνης: Αυτό δεν αποτελεί ιατρική συμβουλή. Οι πληροφορίες βασίζονται στο περιεχόμενο της ιστοσελίδας μας. Συμβουλευτείτε πάντα έναν εξειδικευμένο επαγγελματία υγείας για ιατρικά θέματα.*";
+        // Language-dependent disclaimer
+        $disclaimers = array(
+            'el' => "\n\n---\n*⚕️ Αποποίηση ευθύνης: Αυτό δεν αποτελεί ιατρική συμβουλή. Οι πληροφορίες βασίζονται στο περιεχόμενο της ιστοσελίδας μας. Συμβουλευτείτε πάντα έναν εξειδικευμένο επαγγελματία υγείας για ιατρικά θέματα.*",
+            'en' => "\n\n---\n*⚕️ Disclaimer: This is not medical advice. Information is based on our website content. Always consult a qualified healthcare professional for medical matters.*",
+            'fr' => "\n\n---\n*⚕️ Avertissement : Ceci ne constitue pas un avis médical. Les informations sont basées sur le contenu de notre site web. Consultez toujours un professionnel de santé qualifié pour les questions médicales.*",
+        );
+        $disclaimer    = isset( $disclaimers[ $lang ] ) ? $disclaimers[ $lang ] : $disclaimers['en'];
         $response_text = $response . $disclaimer;
 
         // Log the conversation
@@ -76,21 +87,37 @@ class MCB_Chat_Engine {
      * @param array $chunks Content chunks from search.
      * @return string Formatted context.
      */
-    private function build_context( $chunks ) {
+    private function build_context( $chunks, $language = 'el' ) {
         if ( empty( $chunks ) ) {
             $phone1 = get_option( 'mcb_phone_number', '' );
             $phone2 = get_option( 'mcb_phone_number_2', '' );
 
             $phone_info = '';
             if ( ! empty( $phone1 ) && ! empty( $phone2 ) ) {
-                $phone_info = ' στα τηλέφωνα ' . $phone1 . ' ή ' . $phone2;
-            } elseif ( ! empty( $phone1 ) ) {
-                $phone_info = ' στο τηλέφωνο ' . $phone1;
-            } elseif ( ! empty( $phone2 ) ) {
-                $phone_info = ' στο τηλέφωνο ' . $phone2;
+                if ( 'en' === $language ) {
+                    $phone_info = ' at ' . $phone1 . ' or ' . $phone2;
+                } elseif ( 'fr' === $language ) {
+                    $phone_info = ' au ' . $phone1 . ' ou ' . $phone2;
+                } else {
+                    $phone_info = ' στα τηλέφωνα ' . $phone1 . ' ή ' . $phone2;
+                }
+            } elseif ( ! empty( $phone1 ) || ! empty( $phone2 ) ) {
+                $phone = ! empty( $phone1 ) ? $phone1 : $phone2;
+                if ( 'en' === $language ) {
+                    $phone_info = ' at ' . $phone;
+                } elseif ( 'fr' === $language ) {
+                    $phone_info = ' au ' . $phone;
+                } else {
+                    $phone_info = ' στο τηλέφωνο ' . $phone;
+                }
             }
 
-            return 'Δεν βρέθηκε σχετικό περιεχόμενο στην ιστοσελίδα για αυτό το ερώτημα. ΣΗΜΑΝΤΙΚΟ: Ενημέρωσε τον επισκέπτη ότι δεν είσαι σίγουρος για την απάντηση και ότι θα ήταν καλύτερα να καλέσει το ιατρείο' . $phone_info . ' για βοήθεια και καθοδήγηση.';
+            $no_content = array(
+                'el' => 'Δεν βρέθηκε σχετικό περιεχόμενο στην ιστοσελίδα για αυτό το ερώτημα. ΣΗΜΑΝΤΙΚΟ: Ενημέρωσε τον επισκέπτη ότι δεν είσαι σίγουρος για την απάντηση και ότι θα ήταν καλύτερα να καλέσει το ιατρείο' . $phone_info . ' για βοήθεια και καθοδήγηση.',
+                'en' => 'No relevant content was found on the website for this query. IMPORTANT: Inform the visitor that you are not sure about the answer and that it would be best to call the clinic' . $phone_info . ' for help and guidance.',
+                'fr' => 'Aucun contenu pertinent n\'a été trouvé sur le site web pour cette requête. IMPORTANT : Informez le visiteur que vous n\'êtes pas certain de la réponse et qu\'il serait préférable d\'appeler la clinique' . $phone_info . ' pour obtenir de l\'aide et des conseils.',
+            );
+            return isset( $no_content[ $language ] ) ? $no_content[ $language ] : $no_content['en'];
         }
 
         $context_parts = array();
@@ -120,11 +147,18 @@ class MCB_Chat_Engine {
      * @param string $context The website content context.
      * @return string The system prompt.
      */
-    private function build_system_prompt( $context ) {
+    private function build_system_prompt( $context, $language = 'el' ) {
         $site_name     = get_bloginfo( 'name' );
         $custom_prompt = get_option( 'mcb_custom_prompt', '' );
 
-        $prompt = "Είσαι ο ψηφιακός βοηθός της ιστοσελίδας \"{$site_name}\". Ο ρόλος σου είναι να υποδέχεσαι τους επισκέπτες μας με ευγένεια και να τους βοηθάς να βρουν εύκολα αυτό που ψάχνουν μέσα στο site μας. Θέλουμε ο λόγος σου να είναι φιλικός, άμεσος και προσιτός – σαν να μιλάει ένας ευγενικός υπάλληλος στην υποδοχή του ιατρείου.";
+        $lang_headers = array(
+            'en' => "CRITICAL LANGUAGE RULE: The user is writing in ENGLISH. You MUST respond ONLY in English throughout this conversation. Do not use Greek in your response, even though the instructions below are in Greek.\n\n",
+            'fr' => "RÈGLE DE LANGUE CRITIQUE : L'utilisateur écrit en FRANÇAIS. Vous DEVEZ répondre UNIQUEMENT en français tout au long de cette conversation. N'utilisez pas le grec dans votre réponse, même si les instructions ci-dessous sont en grec.\n\n",
+            'el' => '',
+        );
+        $lang_header = isset( $lang_headers[ $language ] ) ? $lang_headers[ $language ] : '';
+
+        $prompt = $lang_header . "Είσαι ο ψηφιακός βοηθός της ιστοσελίδας \"{$site_name}\". Ο ρόλος σου είναι να υποδέχεσαι τους επισκέπτες μας με ευγένεια και να τους βοηθάς να βρουν εύκολα αυτό που ψάχνουν μέσα στο site μας. Θέλουμε ο λόγος σου να είναι φιλικός, άμεσος και προσιτός – σαν να μιλάει ένας ευγενικός υπάλληλος στην υποδοχή του ιατρείου.";
 
         // Append user-defined custom instructions.
         if ( ! empty( $custom_prompt ) ) {
@@ -145,6 +179,33 @@ class MCB_Chat_Engine {
 {$context}";
 
         return $prompt;
+    }
+
+    /**
+     * Detect the language of the user's message.
+     * Supports Greek (el), French (fr), and English (en, default).
+     *
+     * @param string $message The user's message.
+     * @return string Language code: 'el', 'fr', or 'en'.
+     */
+    private function detect_language( $message ) {
+        // Greek: characters from the Greek Unicode block
+        if ( preg_match( '/[\x{0370}-\x{03FF}\x{1F00}-\x{1FFF}]/u', $message ) ) {
+            return 'el';
+        }
+        // French: accented characters specific to French
+        if ( preg_match( '/[àâæçéèêëîïôœùûüÿÀÂÆÇÉÈÊËÎÏÔŒÙÛÜŸ]/u', $message ) ) {
+            return 'fr';
+        }
+        // French: common French words (fallback for non-accented text)
+        $message_lower  = mb_strtolower( trim( $message ), 'UTF-8' );
+        $french_markers = array( 'bonjour', 'bonsoir', 'merci', 'salut', 'oui', 'vous', 'nous', 'votre', 'notre', 'pourquoi', 'comment', 'quelle', 'quel' );
+        foreach ( $french_markers as $word ) {
+            if ( preg_match( '/\b' . preg_quote( $word, '/' ) . '\b/u', $message_lower ) ) {
+                return 'fr';
+            }
+        }
+        return 'en';
     }
 
     /**
