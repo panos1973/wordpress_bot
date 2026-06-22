@@ -46,9 +46,15 @@
             titleEl.textContent = config.chatTitle;
         }
 
-        // Adapt send-button icon colour to the primary colour brightness
+        // Adapt send-button icon colour to the primary colour brightness.
+        // Set stroke directly on the SVG element — bypasses any theme CSS cascade issues.
         if (config.primaryColor && sendBtn) {
-            sendBtn.style.color = getContrastColor(config.primaryColor);
+            var iconColor = getContrastColor(config.primaryColor);
+            var sendSvg = sendBtn.querySelector('svg');
+            if (sendSvg) {
+                sendSvg.style.setProperty('stroke', iconColor, 'important');
+                sendSvg.style.setProperty('fill', 'none', 'important');
+            }
         }
 
         toggleBtn.addEventListener('click', toggleChat);

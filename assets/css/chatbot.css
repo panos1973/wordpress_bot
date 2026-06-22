@@ -235,7 +235,7 @@
 
 #mcb-chat-send svg {
     fill: none !important;
-    stroke: currentColor !important;
+    stroke: #fff !important;
     width: 18px !important;
     height: 18px !important;
 }
