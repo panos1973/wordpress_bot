@@ -36,6 +36,7 @@ class MCB_Frontend {
         );
 
         $primary_color = get_option( 'mcb_primary_color', '#0073aa' );
+        $icon_color    = get_option( 'mcb_icon_color', '#ffffff' );
 
         wp_localize_script( 'mcb-chatbot', 'mcbChat', array(
             'restUrl'        => esc_url_raw( rest_url( 'medical-chatbot/v1' ) ),
@@ -43,10 +44,11 @@ class MCB_Frontend {
             'chatTitle'      => esc_html( get_option( 'mcb_chat_title', 'Βοηθός' ) ),
             'welcomeMessage' => esc_html( get_option( 'mcb_welcome_message', 'Πώς μπορώ να σας βοηθήσω;' ) ),
             'primaryColor'   => sanitize_hex_color( $primary_color ),
+            'iconColor'      => sanitize_hex_color( $icon_color ),
         ) );
 
-        // Inject custom color as CSS variable
-        wp_add_inline_style( 'mcb-chatbot', ':root { --mcb-primary: ' . sanitize_hex_color( $primary_color ) . '; }' );
+        // Inject custom colours as CSS variables
+        wp_add_inline_style( 'mcb-chatbot', ':root { --mcb-primary: ' . sanitize_hex_color( $primary_color ) . '; --mcb-icon: ' . sanitize_hex_color( $icon_color ) . '; }' );
     }
 
     public function render_chatbot_widget() {

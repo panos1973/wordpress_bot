@@ -263,6 +263,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                                value="<?php echo esc_attr( get_option( 'mcb_primary_color', '#0073aa' ) ); ?>">
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="mcb_icon_color"><?php esc_html_e( 'Χρώμα Εικονιδίων', 'medical-chatbot' ); ?></label>
+                    </th>
+                    <td>
+                        <input type="color" name="mcb_icon_color" id="mcb_icon_color"
+                               value="<?php echo esc_attr( get_option( 'mcb_icon_color', '#ffffff' ) ); ?>">
+                        <p class="description"><?php esc_html_e( 'Χρώμα των εικονιδίων μέσα στα κουμπιά (άνοιγμα chat, αποστολή μηνύματος).', 'medical-chatbot' ); ?></p>
+                    </td>
+                </tr>
             </table>
         </div>
 

@@ -19,26 +19,14 @@
     var isOpen = false;
     var isWaiting = false;
 
-    // Returns '#fff' for dark backgrounds, '#2d2d2d' (charcoal) for light ones.
-    function getContrastColor(cssColor) {
-        var r, g, b;
-        var hex = cssColor.trim();
-        if (hex.charAt(0) === '#') {
-            hex = hex.slice(1);
-            if (hex.length === 3) {
-                hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-            }
-            r = parseInt(hex.substring(0, 2), 16);
-            g = parseInt(hex.substring(2, 4), 16);
-            b = parseInt(hex.substring(4, 6), 16);
-        } else {
-            var m = cssColor.match(/\d+/g);
-            if (!m || m.length < 3) { return '#fff'; }
-            r = parseInt(m[0]); g = parseInt(m[1]); b = parseInt(m[2]);
+    function applyIconColor() {
+        var color = (config.iconColor && config.iconColor !== '') ? config.iconColor : '#ffffff';
+        // Apply directly to each SVG via inline important style — immune to theme overrides.
+        var svgs = document.querySelectorAll('#mcb-chat-toggle svg, #mcb-chat-send svg');
+        for (var i = 0; i < svgs.length; i++) {
+            svgs[i].style.setProperty('stroke', color, 'important');
+            svgs[i].style.setProperty('fill', 'none', 'important');
         }
-        // YIQ perceived brightness (0–255)
-        var brightness = (r * 299 + g * 587 + b * 114) / 1000;
-        return brightness > 128 ? '#2d2d2d' : '#fff';
     }
 
     function init() {
@@ -46,16 +34,7 @@
             titleEl.textContent = config.chatTitle;
         }
 
-        // Adapt send-button icon colour to the primary colour brightness.
-        // Set stroke directly on the SVG element — bypasses any theme CSS cascade issues.
-        if (config.primaryColor && sendBtn) {
-            var iconColor = getContrastColor(config.primaryColor);
-            var sendSvg = sendBtn.querySelector('svg');
-            if (sendSvg) {
-                sendSvg.style.setProperty('stroke', iconColor, 'important');
-                sendSvg.style.setProperty('fill', 'none', 'important');
-            }
-        }
+        applyIconColor();
 
         toggleBtn.addEventListener('click', toggleChat);
         minimizeBtn.addEventListener('click', toggleChat);

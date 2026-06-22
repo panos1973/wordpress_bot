@@ -3,7 +3,7 @@
  * Plugin Name: Medical Website Chatbot
  * Plugin URI: https://github.com/panos1973/wordpress_bot
  * Description: AI-powered chatbot for medical websites that answers visitor questions based on website content. Supports Claude Haiku 4.5 and Gemini models.
- * Version: 1.5.3
+ * Version: 1.5.4
  * Author: Publisize
  * License: GPL v2 or later
  * Text Domain: medical-chatbot
@@ -13,8 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'MCB_VERSION', '1.5.3' );
-define( 'MCB_DB_VERSION', '1.5.3' );
+define( 'MCB_VERSION', '1.5.4' );
+define( 'MCB_DB_VERSION', '1.5.4' );
 define( 'MCB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MCB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'MCB_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -160,6 +160,7 @@ final class Medical_Chatbot {
             'mcb_chat_title'         => 'Medical Assistant',
             'mcb_welcome_message'    => 'Hello! I can help you find information from our website. How can I assist you today?',
             'mcb_primary_color'      => '#0073aa',
+            'mcb_icon_color'         => '#ffffff',
             'mcb_max_context_chunks' => 5,
             'mcb_last_scan'          => '',
         );

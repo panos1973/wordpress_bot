@@ -104,6 +104,9 @@ class MCB_Admin {
         register_setting( 'mcb_settings', 'mcb_primary_color', array(
             'sanitize_callback' => 'sanitize_hex_color',
         ) );
+        register_setting( 'mcb_settings', 'mcb_icon_color', array(
+            'sanitize_callback' => 'sanitize_hex_color',
+        ) );
         register_setting( 'mcb_settings', 'mcb_max_context_chunks', array(
             'sanitize_callback' => 'absint',
         ) );
