@@ -223,7 +223,7 @@
     height: 36px;
     border-radius: 50%;
     background: var(--mcb-primary);
-    color: #fff;
+    color: #fff; /* overridden by JS based on primary colour brightness */
     border: none;
     cursor: pointer;
     display: flex;
