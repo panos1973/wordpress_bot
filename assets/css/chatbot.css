@@ -223,7 +223,7 @@
     height: 36px;
     border-radius: 50%;
     background: var(--mcb-primary);
-    color: #fff; /* overridden by JS based on primary colour brightness */
+    color: #fff !important; /* JS inline style overrides this for light primary colours */
     border: none;
     cursor: pointer;
     display: flex;
@@ -231,6 +231,13 @@
     justify-content: center;
     flex-shrink: 0;
     transition: opacity 0.2s;
+}
+
+#mcb-chat-send svg {
+    fill: none !important;
+    stroke: currentColor !important;
+    width: 18px !important;
+    height: 18px !important;
 }
 
 #mcb-chat-send:hover {

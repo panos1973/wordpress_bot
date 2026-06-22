@@ -47,10 +47,8 @@
         }
 
         // Adapt send-button icon colour to the primary colour brightness
-        var primaryColor = getComputedStyle(document.documentElement)
-            .getPropertyValue('--mcb-primary').trim();
-        if (primaryColor && sendBtn) {
-            sendBtn.style.color = getContrastColor(primaryColor);
+        if (config.primaryColor && sendBtn) {
+            sendBtn.style.color = getContrastColor(config.primaryColor);
         }
 
         toggleBtn.addEventListener('click', toggleChat);
